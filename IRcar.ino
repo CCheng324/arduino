@@ -26,7 +26,7 @@ double Kp = 1.0, Ki = 0.1, Kd = 0.0; // PID參數設置
 PID myPID(&Input, &Output, &Setpoint, Kp, Ki, Kd, DIRECT);
 
 // 捷徑檢測變量
-bool shortcutDetected = false;
+//bool shortcutDetected = false;
 
 // 初始化函式
 void setup() {
@@ -56,21 +56,20 @@ void loop() {
   
   // error值計算
   int error = calculateError(sen1, sen2, sen3, sen4, sen5);
-
+  /*
   // 是否有捷徑
   shortcutDetected = detectShortcut();
 
   // 如果有捷徑調整PID
+ 
   if (shortcutDetected) {
     adjustForShortcut();
-  } else {
-    // 否則，使用正常的PID控制
+  } else {}  
+  */
     Input = error; // 設置PID輸入
     myPID.Compute(); // 計算PID輸出
     controlMotors(Output); // 控制馬達
-  }
-  delay(50);
-}
+
 
 // 計算error
 int calculateError(int sen1, int sen2, int sen3, int sen4, int sen5) {
@@ -92,6 +91,7 @@ int calculateError(int sen1, int sen2, int sen3, int sen4, int sen5) {
     return 0;
 }
 
+/*
 // 捷徑函式
 bool detectShortcut() {
   int threshold = 500; 
@@ -110,7 +110,6 @@ bool detectShortcut() {
 
 // 如果遇到十字路口該麼辦?(未解決)
 
-
 void adjustForShortcut() {
   // 根據捷径感測器調整方向
   if (analogRead(IR1) < 500 || analogRead(IR2) < 500) {
@@ -124,6 +123,8 @@ void adjustForShortcut() {
   }
   Input = 0;
 }
+
+*/
 
 // 控制馬達函式
 void controlMotors(double pidOutput) {
