@@ -33,6 +33,7 @@ void setup() {
   pinMode(IR4,INPUT);
   pinMode(motorL,OUTPUT);
   pinMode(motorR,OUTPUT);
+  
 }
 
 //循跡線是白線 白色：紅外線感測器返回1 黑色：返回0
