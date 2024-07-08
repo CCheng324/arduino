@@ -4,7 +4,7 @@
 Servo servoL;
 Servo servoR;
 
-// 红外传感器引脚定义
+// 定義腳位
 #define S1 D2
 #define S2 D3
 #define S3 D4
@@ -15,20 +15,20 @@ Servo servoR;
 #define IR3 A3
 #define IR4 A4
 
-// 电机引脚定义
+// 定義馬達
 #define motorL D9
 #define motorR D10
 
-// PID控制变量
-double Setpoint = 0; // 设定点，理想情况下偏差为0
+// PID變量
+double Setpoint = 0; // 設定目標值，應為0
 double Input, Output;
-double Kp = 1.0, Ki = 0.1, Kd = 0.0; // PID参数
+double Kp = 1.0, Ki = 0.1, Kd = 0.0; // PID參數設置
 PID myPID(&Input, &Output, &Setpoint, Kp, Ki, Kd, DIRECT);
 
-// 捷径检测变量
+// 捷徑檢測變量
 bool shortcutDetected = false;
 
-// 初始化函数
+// 初始化函式
 void setup() {
   servoL.attach(motorL);
   servoR.attach(motorR);
@@ -43,40 +43,36 @@ void setup() {
   pinMode(IR3, INPUT);
   pinMode(IR4, INPUT);
   
-  myPID.SetMode(AUTOMATIC); // 设置PID模式为自动调节
+  myPID.SetMode(AUTOMATIC); // 設置PID模式為自動調節
 }
 
-// 主循环
+
 void loop() {
-  // 读取传感器值
   int sen1 = digitalRead(S1);
   int sen2 = digitalRead(S2);
   int sen3 = digitalRead(S3);
   int sen4 = digitalRead(S4);
   int sen5 = digitalRead(S5);
   
-  // 计算加权差值
+  // error值計算
   int error = calculateError(sen1, sen2, sen3, sen4, sen5);
 
-  // 检测捷径
+  // 是否有捷徑
   shortcutDetected = detectShortcut();
 
-  // 如果检测到捷径，调整PID参数
+  // 如果有捷徑調整PID
   if (shortcutDetected) {
-    // 根据捷径情况调整 Setpoint 和 PID 控制
     adjustForShortcut();
   } else {
-    // 否则，使用正常的PID控制
-    Input = error; // 设置PID输入
-    myPID.Compute(); // 计算PID输出
-    controlMotors(Output); // 控制电机
+    // 否則，使用正常的PID控制
+    Input = error; // 設置PID輸入
+    myPID.Compute(); // 計算PID輸出
+    controlMotors(Output); // 控制馬達
   }
-
-  // 延时
   delay(50);
 }
 
-// 计算偏差函数
+// 計算error
 int calculateError(int sen1, int sen2, int sen3, int sen4, int sen5) {
   if (sen1 == 1 && sen2 == 0 && sen3 == 0 && sen4 == 0 && sen5 == 0) // 10000
     return 3;
@@ -96,62 +92,47 @@ int calculateError(int sen1, int sen2, int sen3, int sen4, int sen5) {
     return 0;
 }
 
-// 检测捷径函数
+// 捷徑函式
 bool detectShortcut() {
-  int threshold = 500; // 根据实际情况调整阈值
-  
-  // 读取捷径传感器值
+  int threshold = 500; 
+
   int ir1 = analogRead(IR1);
   int ir2 = analogRead(IR2);
   int ir3 = analogRead(IR3);
   int ir4 = analogRead(IR4);
   
-  // 判断是否检测到捷径
+  // 捷徑(true or false)
   bool leftShortcut = (ir1 < threshold) || (ir2 < threshold);
   bool rightShortcut = (ir3 < threshold) || (ir4 < threshold);
   
   return leftShortcut || rightShortcut;
 }
 
-// 根据捷径调整函数
+// 如果遇到十字路口該麼辦?(未解決)
+
+
 void adjustForShortcut() {
-  int baseSpeed = 150; // 基础速度，根据需要调整
-  
-  // 根据捷径传感器调整方向
-  int leftMotorSpeed = baseSpeed;
-  int rightMotorSpeed = baseSpeed;
-  
+  // 根據捷径感測器調整方向
   if (analogRead(IR1) < 500 || analogRead(IR2) < 500) {
-    // 左侧捷径，向左转
-    servoL.writeMicroseconds(1000); // 向左
-    servoR.writeMicroseconds(2000); // 向前
+    // 左側捷徑，向左轉
+    servoL.writeMicroseconds(1500); 
+    servoR.writeMicroseconds(2000); 
   } else if (analogRead(IR3) < 500 || analogRead(IR4) < 500) {
-    // 右侧捷径，向右转
-    servoL.writeMicroseconds(2000); // 向前
-    servoR.writeMicroseconds(1000); // 向右
+    // 右側捷徑，向右轉
+    servoL.writeMicroseconds(2000); 
+    servoR.writeMicroseconds(1500); 
   }
-  
-  // 设置PID输入为0，保持原地
   Input = 0;
 }
 
-// 控制电机函数
+// 控制馬達函式
 void controlMotors(double pidOutput) {
-  int baseSpeed = 150; // 基础速度，根据需要调整
-  int leftMotorSpeed = constrain(baseSpeed - pidOutput, 0, 255);
-  int rightMotorSpeed = constrain(baseSpeed + pidOutput, 0, 255);
+  int baseSpeed = 1800; 
+
+  // 根據 PID 輸出調整左右馬達的舵機脈衝寬度
+  int leftMotorSpeed = constrain(baseSpeed - pidOutput, 1500, 2000); // 限制在1500到2000微秒之間
+  int rightMotorSpeed = constrain(baseSpeed + pidOutput, 1500, 2000); // 限制在1500到2000微秒之間
   
-  // 控制左电机
-  if (pidOutput >= 0) {
-    servoL.writeMicroseconds(2000); // 向前
-  } else {
-    servoL.writeMicroseconds(1000); // 向后
-  }
-  
-  // 控制右电机
-  if (pidOutput >= 0) {
-    servoR.writeMicroseconds(2000); // 向前
-  } else {
-    servoR.writeMicroseconds(1000); // 向后
-  }
+  servoL.writeMicroseconds(leftMotorSpeed);
+  servoR.writeMicroseconds(rightMotorSpeed);
 }
