@@ -27,7 +27,7 @@ void setup() {
 
 }
 
-//[Return 1 when WHITE  |  Return 0 when BLACK]
+//[Return 0 when WHITE  |  Return 1 when BLACK]
 
 void loop() {
   int sen1 = digitalRead(IR1);
