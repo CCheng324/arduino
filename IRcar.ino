@@ -41,15 +41,15 @@ void loop() {
     servoL.writeMicroseconds(1800);
     servoR.writeMicroseconds(1800);
   }
-  else if(sen3 == 1 && sen2 == 0){ //車子偏左(左馬達加速)
+  else if(sen3 == 1 && sen2 == 0){ //車子偏左
     servoL.writeMicroseconds(1850);
     servoR.writeMicroseconds(1750);
   }
-  else if(sen3 == 0 && sen2 == 1){ //車子偏右(右馬達加速)
+  else if(sen3 == 0 && sen2 == 1){ //車子偏右
     servoL.writeMicroseconds(1750);
     servoR.writeMicroseconds(1850);
   }
-delay(10);
+
 }
 
 
