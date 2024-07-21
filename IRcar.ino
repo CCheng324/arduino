@@ -40,13 +40,7 @@ void loop() {
   
   mpu.getAcceleration(&ax, &ay, &az);
   float oblique = atan2(ay, az) * 180 / PI;
-  
-  Serial.print("Roll = "); 
-  Serial.println(roll);
-  Serial.print("S4: ");
-  Serial.println(sen4);
 
-  delay(1000);
 }
   
   if(sen1 == 1 && sen2 == 1 ) { // 直行
