@@ -45,7 +45,7 @@ void setup() {
 }
 
 //white=0 black=1
-// R to L [1 2 3 4 5]
+// L [1 2 3 4 5] R
 void loop() {
   int sen1 = digitalRead(S1);
   int sen2 = digitalRead(S2);
