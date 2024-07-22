@@ -17,7 +17,7 @@ MPU6050 mpu;
 // 定義馬達
 #define motorL 9
 #define motorR 10
-// 馬達轉速 要再改(+100)
+// 馬達轉速
 int basic_motor_L = 1700;
 int basic_motor_R = 1782;
 int turn = 1750;
