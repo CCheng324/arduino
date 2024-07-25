@@ -72,12 +72,33 @@ void controlCar(int sen1, int sen2, int sen3, int sen4, int sen5) {
   if (sen1 == 1 && sen2 == 1 && sen3 == 1 && sen4 == 1 && sen5 == 1) { // 全黑停車
     servoL.writeMicroseconds(stop_speed);
     servoR.writeMicroseconds(stop_speed);
-  } else if (sen3 == 1 && (sen1 == 1 || sen2 == 1)) {  // V-shape(右彎)
+  } else if (sen1 == 1 && sen2 == 1 && sen3 == 1 && sen4 == 1) {
     servoL.writeMicroseconds(Vshape_turn);
     servoR.writeMicroseconds(stop_speed);
-  } else if (sen3 == 1 && (sen4 == 1 || sen5 == 1)) { // V-shape(左彎)
+  } else if (sen2 == 1 && sen3 == 1 && sen4 == 1 && sen5 == 1 ) { 
+    servoL.writeMicroseconds(stop_speed);
+    servoR.writeMicroseconds(Vshape_turn);    
+
+
+
+
+
+
+    
+  } else if (sen3 == 1 && (sen1 == 1 || sen2 == 1)) {// T(右彎)
+    servoL.writeMicroseconds(stop_speed);
+    servoR.writeMicroseconds(stop_speed);
+    delay(100);
+    servoL.writeMicroseconds(Vshape_turn);
+    servoR.writeMicroseconds(stop_speed);
+    delay(500);
+  } else if (sen3 == 1 && (sen4 == 1 || sen5 == 1)) { //T(左彎)
+    servoL.writeMicroseconds(stop_speed);
+    servoR.writeMicroseconds(stop_speed);
+    delay(100);    
     servoL.writeMicroseconds(stop_speed);
     servoR.writeMicroseconds(Vshape_turn);
+    delay(500);
   } else if ((sen2 == 0 && sen4 == 1) || sen5 == 1) { // 車子偏右 
     servoL.writeMicroseconds(stop_speed);
     servoR.writeMicroseconds(turn);
