@@ -12,19 +12,15 @@ MPU6050 mpu;
 #define S3 4
 #define S4 5
 #define S5 6 
-#define det 7
-#define fro 11
 // 定義馬達
 #define motorL 9
 #define motorR 10
-// 馬達轉速 要再改(+100)
+// 馬達轉速
 int basic_motor_L = 1700;
 int basic_motor_R = 1782;
 int turn = 1750;
 int stop_speed = 1500;
-int V-shape_ turn= 1800;
-int oblique_L = 1600;
-int oblique_R = 1682;
+int Vshape_turn = 1800;
 
 // 初始化函式
 void setup() {
@@ -39,86 +35,73 @@ void setup() {
   pinMode(S3, INPUT);
   pinMode(S4, INPUT);
   pinMode(S5, INPUT);
-  pinMode(det, INPUT);
-  pinMode(fro, INPUT);
-
 }
 
-//white=0 black=1
-// R to L [1 2 3 4 5]
-void loop() {
-  int sen1 = digitalRead(S1);
-  int sen2 = digitalRead(S2);
-  int sen3 = digitalRead(S3);
-  int sen4 = digitalRead(S4);
-  int sen5 = digitalRead(S5);
-  int detect = digitalRead(det);
-  int front = digitalRead(fro);
+// 獲取感測器數據
+void getSensorData(int &sen1, int &sen2, int &sen3, int &sen4, int &sen5) {
+  sen1 = digitalRead(S1);
+  sen2 = digitalRead(S2);
+  sen3 = digitalRead(S3);
+  sen4 = digitalRead(S4);
+  sen5 = digitalRead(S5);
+}
 
+// 獲取傾斜角度
+float getObliqueAngle() {
   int16_t ax, ay, az;
-  
   mpu.getAcceleration(&ax, &ay, &az);
-  float oblique = atan2(ay, az) * 180 / PI;
+  return atan2(ay, az) * 180 / PI;
 }
-  
-  if(sen2 == 1 && sen4 == 1 ) { // 直行
-    if(oblique >= 10){  //判斷傾斜
-    servoL.writeMicroseconds(oblique_L);
-    servoR.writeMicroseconds(oblique_R);  
+
+// 根據傾斜角度調整馬達轉速
+void detectOblique(float obl) {
+  if (obl > 10) {
+    basic_motor_L = 1600;
+    basic_motor_R = 1682;
+  } else if (obl < -20) {
+    basic_motor_L = 1800;
+    basic_motor_R = 1882;
+  } else {
+    basic_motor_L = 1700;
+    basic_motor_R = 1782;
   }
-  else{
+}
+
+// 控制車子轉向
+void controlCar(int sen1, int sen2, int sen3, int sen4, int sen5) {
+  if (sen1 == 1 && sen2 == 1 && sen3 == 1 && sen4 == 1 && sen5 == 1) { // 全黑停車
+    servoL.writeMicroseconds(stop_speed);
+    servoR.writeMicroseconds(stop_speed);
+  } else if (sen3 == 1 && (sen1 == 1 || sen2 == 1)) {  // V-shape(右彎)
+    servoL.writeMicroseconds(Vshape_turn);
+    servoR.writeMicroseconds(stop_speed);
+  } else if (sen3 == 1 && (sen4 == 1 || sen5 == 1)) { // V-shape(左彎)
+    servoL.writeMicroseconds(stop_speed);
+    servoR.writeMicroseconds(Vshape_turn);
+  } else if ((sen2 == 0 && sen4 == 1) || sen5 == 1) { // 車子偏右 
+    servoL.writeMicroseconds(stop_speed);
+    servoR.writeMicroseconds(turn);
+  } else if ((sen2 == 1 && sen4 == 0) || sen1 == 1) { // 車子偏左 
+    servoL.writeMicroseconds(turn);
+    servoR.writeMicroseconds(stop_speed);
+  } else if (sen1 == 1) { // 車子偏左 
+    servoL.writeMicroseconds(turn);
+    servoR.writeMicroseconds(stop_speed);
+  } else if (sen5 == 1) { // 車子偏右 
+    servoL.writeMicroseconds(stop_speed);
+    servoR.writeMicroseconds(turn);
+  } else { // 直行
     servoL.writeMicroseconds(basic_motor_L);
-    servoR.writeMicroseconds(basic_motor_R);    
-    }
+    servoR.writeMicroseconds(basic_motor_R);
   }
-  else if((sen3 == 0 && sen1 == 0) || (sen3 == 0 && sen2 == 0)){//V-shape(右彎)
-    servoL.writeMicroseconds(stop_speed);
-    servoR.writeMicroseconds(V-shape_ turn);      
-  }
-  else if((sen3 == 0 && sen5 == 0) || (sen3 == 0 && sen4 == 0)){//V-shape(左彎)
-    servoL.writeMicroseconds(V-shape_ turn);
-    servoR.writeMicroseconds(stop_speed);      
-  }  
+}
 
+void loop() {
+  int sen1, sen2, sen3, sen4, sen5;
+  getSensorData(sen1, sen2, sen3, sen4, sen5);
 
-  /*
-  else if(sen1 == 0 && sen2 == 1 ) { // 車子偏右 先延遲0.2s 再判斷  時間要實際試過再改
-    delay(200);
-    if(//如果 中間有感測到) {
-      servoL.writeMicroseconds(stop_speed);
-      servoR.writeMicroseconds(turn);
-    }
-    else{
-      servoL.writeMicroseconds(basic_motor_L);
-      servoR.writeMicroseconds(basic_motor_R);  
-    }
-  }
-  else if(sen1 == 1 && sen2 == 0) { // 車子偏左  先延遲0.2s 再判斷  時間要實際試過再改
-    delay(200);
-    if(//如果 中間有感測到){
-      servoL.writeMicroseconds(turn);
-      servoR.writeMicroseconds(stop_speed);
-    }
-    else{
-      servoL.writeMicroseconds(basic_motor_L);
-      servoR.writeMicroseconds(basic_motor_R); 
-    }  
-  */
+  float oblique = getObliqueAngle();
+  detectOblique(oblique);
 
-
-  }
-  else if(sen1 == 0 && sen2 == 0){
-    if (detect == 1){
-      servoL.writeMicroseconds(basic_motor_L);
-      servoR.writeMicroseconds(basic_motor_R);      
-  }
-   else{
-    servoL.writeMicroseconds(stop_speed);
-    servoR.writeMicroseconds(stop_speed);    
-    }
-    }  
-
-
-
-
-
+  controlCar(sen1, sen2, sen3, sen4, sen5);
+}
