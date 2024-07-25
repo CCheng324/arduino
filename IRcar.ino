@@ -15,7 +15,7 @@ MPU6050 mpu;
 // 定義馬達
 #define motorL 9
 #define motorR 10
-// 馬達轉速
+// 馬達轉速 要再改(+100)
 int basic_motor_L = 1700;
 int basic_motor_R = 1782;
 int turn = 1750;
@@ -35,19 +35,22 @@ void setup() {
   pinMode(S3, INPUT);
   pinMode(S4, INPUT);
   pinMode(S5, INPUT);
+  pinMode(det, INPUT);
+  pinMode(fro, INPUT);
+
 }
 
-// 獲取感測器數據
-void getSensorData(int &sen1, int &sen2, int &sen3, int &sen4, int &sen5) {
-  sen1 = digitalRead(S1);
-  sen2 = digitalRead(S2);
-  sen3 = digitalRead(S3);
-  sen4 = digitalRead(S4);
-  sen5 = digitalRead(S5);
-}
+//white=0 black=1
+// R to L [1 2 3 4 5]
+void loop() {
+  int sen1 = digitalRead(S1);
+  int sen2 = digitalRead(S2);
+  int sen3 = digitalRead(S3);
+  int sen4 = digitalRead(S4);
+  int sen5 = digitalRead(S5);
+  int detect = digitalRead(det);
+  int front = digitalRead(fro);
 
-// 獲取傾斜角度
-float getObliqueAngle() {
   int16_t ax, ay, az;
   mpu.getAcceleration(&ax, &ay, &az);
   return atan2(ay, az) * 180 / PI;
