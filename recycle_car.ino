@@ -16,6 +16,7 @@ Ultrasonic sr3(12, 11);
 
 int motLPin = 5;
 int motRPin = 6;
+int tswitch = 2;
 
 int distance1, distance2, distance3;
 int fanThreshold = 20;
@@ -35,7 +36,8 @@ void setup() {
   pinMode(IR1, INPUT);
   pinMode(IR2, INPUT);
   pinMode(IR3, INPUT);
-  
+  pinMode(tswitch, INPUT);
+
   delay(2000); 
 }
 
@@ -52,46 +54,53 @@ void loop() {
   int irValue3 = !digitalRead(IR3);
 
   // 檢查是否任何一個 IR 傳感器被觸發
-  if (irValue0 || irValue1 || irValue2 || irValue3) {
-    if (irValue0 || irValue1) {
-      reverse();
-      delay(500);
-      turnRight();
-      delay(500);
-    } else if (irValue2 || irValue3) {
-      moveForward();
-      delay(500);       
-    }
-  } else {
-    // IR 無觸發，使用超音波距離
-    if (distance2 < fanThreshold) {
-      activateFan();
-      moveForward();
-      Serial.println("rush");
-    } else if (distance1 < fanThreshold) {
-      deactivateFan();
-      turnLeft();
-      Serial.println("left");
-    } else if (distance3 < fanThreshold) {
-      deactivateFan();
-      turnRight();
-      Serial.println("right");
+  //if (digitalRead(tswitch) == HIGH) {
+    if (irValue0 || irValue1 || irValue2 || irValue3) {
+      if (irValue0 && irValue1 && irValue2 && irValue3) {
+        moveForward();
+      } else if (irValue0 || irValue1) {
+        reverse();
+        delay(500);
+        turnRight();
+        delay(500);
+      } else if (irValue2 || irValue3) {
+        moveForward();
+        delay(500);       
+      }
     } else {
-      moveForward();
-      Serial.println("else");
+      // IR 無觸發，使用超音波距離
+      if (distance2 < fanThreshold) {
+        activateFan();
+        moveForward();
+        Serial.println("rush");
+        Serial.println("fango");
+      } else if (distance1 < fanThreshold) {
+        deactivateFan();
+        turnLeft();
+        Serial.println("left");
+      } else if (distance3 < fanThreshold) {
+        deactivateFan();
+        turnRight();
+        Serial.println("right");
+      } else {
+        moveForward();
+        Serial.println("else");
+      }
+
+      Serial.print("Distance 1: ");
+      Serial.print(distance1);
+      Serial.print(" cm, Distance 2: ");
+      Serial.print(distance2);
+      Serial.print(" cm, Distance 3: ");
+      Serial.println(distance3);
     }
-  Serial.print("Distance 1: ");
-  Serial.print(distance1);
-  Serial.print(" cm, Distance 2: ");
-  Serial.print(distance2);
-  Serial.print(" cm, Distance 3: ");
-  Serial.println(distance3);
- 
-  }
+  /*} else {
+    motL.write(90);
+    motR.write(90);
+  }*/
 
   delay(200); 
 }
-
 
 void reverse() {
   motL.write(20);    
