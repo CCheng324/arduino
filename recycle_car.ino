@@ -56,9 +56,7 @@ void loop() {
   // 檢查是否任何一個 IR 傳感器被觸發
   //if (digitalRead(tswitch) == HIGH) {
     if (irValue0 || irValue1 || irValue2 || irValue3) {
-      if (irValue0 && irValue1 && irValue2 && irValue3) {
-        moveForward();
-      } else if (irValue0 || irValue1) {
+      if (irValue0 || irValue1) {
         reverse();
         delay(500);
         turnRight();
@@ -95,6 +93,7 @@ void loop() {
       Serial.println(distance3);
     }
   /*} else {
+    // 停止電機
     motL.write(90);
     motR.write(90);
   }*/
